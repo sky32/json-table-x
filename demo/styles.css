@@ -1,0 +1,160 @@
+/* Copied from project root styles.css for demo isolation */
+:root {
+    --bg: #0f172a;
+    --panel: #111827;
+    --muted: #9ca3af;
+    --text: #e5e7eb;
+    --accent: #22c55e;
+    --accent-2: #3b82f6;
+    --border: #1f2937;
+    --chip: #0b1220;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background: var(--bg);
+    color: var(--text);
+}
+
+.table-wrap {
+    width: 100%;
+    overflow: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    table-layout: auto;
+}
+
+thead th {
+    position: sticky;
+    top: 0;
+    background: #0d1526;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    padding: 8px;
+    color: #cbd5e1;
+}
+
+tbody td {
+    border-bottom: 1px solid var(--border);
+    padding: 8px;
+    color: var(--text);
+    vertical-align: top;
+}
+
+tbody tr:nth-child(odd) td {
+    background: #0b1220;
+}
+
+tbody tr:nth-child(even) td {
+    background: #0c172a;
+}
+
+td em.null {
+    color: var(--muted);
+    font-style: normal;
+}
+
+td .pill {
+    background: #132036;
+    color: #9cc3ff;
+    border: 1px solid #1c2b4b;
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.nested-wrap {
+    overflow: visible;
+}
+
+.nested-table {
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.sections {
+    display: grid;
+    gap: 8px;
+}
+
+.section {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.section .section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    font-size: 12px;
+    color: #cbd5e1;
+    background: #0d1526;
+    border-bottom: 1px solid var(--border);
+}
+
+.section .section-body {
+    padding: 6px 8px;
+}
+
+.kv-inline {
+    display: grid;
+    gap: 6px;
+}
+
+.kv-chip {
+    display: block;
+    background: #132036;
+    color: #e5e7eb;
+    border: 1px solid #1c2b4b;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.list-plain {
+    display: grid;
+    gap: 4px;
+}
+
+.list-item {
+    padding: 2px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+table.vertical {
+    table-layout: fixed;
+    font-size: 12px;
+}
+
+table.vertical th,
+table.vertical td {
+    padding: 6px;
+    word-break: break-all;
+    white-space: normal;
+}
+
+table.vertical th:first-child {
+    width: 120px;
+}
