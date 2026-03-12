@@ -1,6 +1,6 @@
 {
   "name": "json-table-x",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Render arbitrary JSON into nested HTML tables with layout, i18n and styling options.",
   "main": "json-table-x.js",
