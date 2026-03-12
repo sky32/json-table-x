@@ -36,6 +36,21 @@ jobs:
           mkdir -p site
           cp -R demo site/demo
           cp -R dist site/dist
+          cat > site/index.html <<'EOF'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="refresh" content="0; url=demo/" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <title>JsonTableX Demo</title>
+          </head>
+          <body>
+            <script>location.replace('demo/');</script>
+          </body>
+          </html>
+          EOF
+          cp site/index.html site/404.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
