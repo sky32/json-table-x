@@ -85,9 +85,40 @@ const selectedPaths = new Set(tables.filter(t => t.kind === 'records').map(t => 
 JsonTableX.render(mountEl, data, { className: 'jtx', view: 'multi', selectedPaths });
 ```
 
+## 主题（theme）
+
+JsonTableX 的主题通过 `cssVars` 传入（本质是给根容器设置一组 CSS 变量）。
+
+内置主题：
+
+- `JsonTableX.themes.dark`
+- `JsonTableX.themes.light`
+- `JsonTableX.themes.compact`
+
+用法：
+
+```js
+JsonTableX.render(mountEl, data, {
+  className: 'jtx',
+  cssVars: JsonTableX.themes.dark
+});
+```
+
+自定义/覆盖（在内置主题基础上改某几个变量）：
+
+```js
+JsonTableX.render(mountEl, data, {
+  className: 'jtx',
+  cssVars: {
+    ...JsonTableX.themes.dark,
+    '--panel': '#0b1220',
+    '--border': '#223043'
+  }
+});
+```
+
 ## i18n
 
-内置文案：
 
 - zh: `{ fieldLabel: '字段', contentLabel: '内容', noTables: '没有可渲染的表格', trueLabel: '是', falseLabel: '否' }`
 - en: `{ fieldLabel: 'Field', contentLabel: 'Content', noTables: 'No tables to render', trueLabel: 'true', falseLabel: 'false' }`
@@ -107,4 +138,3 @@ npm run dev
 - `npm run clean`：清理 `dist`
 
 Demo 位于 `demo/`，直接打开 `demo/index.html` 也可运行（但建议先 `npm run build`）。
-

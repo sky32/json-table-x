@@ -1,10 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-const distDir = path.resolve(__dirname, '..', 'dist');
-const demoDistDir = path.resolve(__dirname, '..', 'demo', 'dist');
-const css =
-`.jtx .table-wrap{width:100%;overflow:auto;}
+.jtx .table-wrap{width:100%;overflow:auto;}
 .jtx table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;table-layout:auto;}
+.jtx-inline td{white-space:pre;}
+.jtx-inline .kv-content{white-space:pre;}
+.jtx-inline .list-item{white-space:pre;}
 .jtx thead th{position:sticky;top:0;background:var(--jtx-header-bg, var(--panel, #0d1526));border-bottom:1px solid var(--border, #1f2937);text-align:left;padding:8px;color:var(--text, #e5e7eb);}
 .jtx tbody td{border-bottom:1px solid var(--border, #1f2937);padding:8px;color:var(--text, #e5e7eb);vertical-align:top;}
 .jtx tbody tr:nth-child(odd) td{background:var(--jtx-row-odd, var(--chip, #0b1220));}
@@ -27,10 +25,6 @@ const css =
 .jtx .list-item:last-child{border-bottom:none;}
 .jtx table.vertical{table-layout:fixed;font-size:12px;}
 .jtx table.vertical th,.jtx table.vertical td{padding:6px;word-break:break-all;white-space:normal;}
-.jtx table.vertical th:first-child{width:120px;}`;
-
-fs.mkdirSync(distDir, { recursive: true });
-fs.writeFileSync(path.join(distDir, 'json-table-x.min.css'), css, 'utf8');
-fs.mkdirSync(demoDistDir, { recursive: true });
-fs.copyFileSync(path.join(distDir, 'json-table-x.min.css'), path.join(demoDistDir, 'json-table-x.min.css'));
-console.log('[build-css] wrote dist/json-table-x.min.css and demo/dist/json-table-x.min.css');
+.jtx table.vertical th:first-child{width:120px;}
+.jtx-inline table.vertical{table-layout:auto;}
+.jtx-inline table.vertical th,.jtx-inline table.vertical td{word-break:normal;white-space:pre;}

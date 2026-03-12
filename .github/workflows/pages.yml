@@ -30,10 +30,17 @@ jobs:
           npm ci
           npm run build
 
-      - name: Upload artifact (demo folder)
+      - name: Prepare site artifact
+        run: |
+          rm -rf site
+          mkdir -p site
+          cp -R demo site/demo
+          cp -R dist site/dist
+
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./demo
+          path: ./site
 
   deploy:
     environment:

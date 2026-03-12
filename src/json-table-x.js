@@ -264,7 +264,6 @@
                 const header = document.createElement('div'); header.className = cn('sectionHeader', classNames);
                 if (allowHtml) header.innerHTML = k; else header.textContent = k;
                 const body = document.createElement('div'); body.className = cn('sectionBody', classNames);
-                // If value is a single-key flat object and inline is on, render inline "k2: v2"
                 if (singleItemInline && isPlainObject(val)) {
                     const grouped2 = groupColonKeys(val);
                     const entries2 = Object.entries(grouped2);
@@ -300,6 +299,7 @@
         container.innerHTML = '';
         const root = document.createElement('div');
         root.className = className || '';
+        if (singleItemInline) root.classList.add('jtx-inline');
         if (cssVars) { for (const [k, v] of Object.entries(cssVars)) root.style.setProperty(k, v); }
         const t = buildRootTable(data, msgs);
         const orientation = chooseOrientation(t.kind, t.columns, t.rows, layoutMode);
@@ -315,6 +315,7 @@
         container.innerHTML = '';
         const root = document.createElement('div');
         root.className = className || '';
+        if (singleItemInline) root.classList.add('jtx-inline');
         if (cssVars) { for (const [k, v] of Object.entries(cssVars)) root.style.setProperty(k, v); }
         const tables = collectTables(data, msgs);
         let rendered = 0;
