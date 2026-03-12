@@ -1,0 +1,36 @@
+const fs = require('fs');
+const path = require('path');
+const distDir = path.resolve(__dirname, '..', 'dist');
+const demoDistDir = path.resolve(__dirname, '..', 'demo', 'dist');
+const css =
+`.jtx .table-wrap{width:100%;overflow:auto;}
+.jtx table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;table-layout:auto;}
+.jtx thead th{position:sticky;top:0;background:var(--jtx-header-bg, var(--panel, #0d1526));border-bottom:1px solid var(--border, #1f2937);text-align:left;padding:8px;color:var(--text, #e5e7eb);}
+.jtx tbody td{border-bottom:1px solid var(--border, #1f2937);padding:8px;color:var(--text, #e5e7eb);vertical-align:top;}
+.jtx tbody tr:nth-child(odd) td{background:var(--jtx-row-odd, var(--chip, #0b1220));}
+.jtx tbody tr:nth-child(even) td{background:var(--jtx-row-even, #0c172a);}
+.jtx td em.null{color:var(--muted, #9ca3af);font-style:normal;}
+.jtx td .pill{background:var(--jtx-pill-bg, #132036);color:var(--jtx-pill-text, #9cc3ff);border:1px solid var(--jtx-pill-border, #1c2b4b);padding:1px 6px;border-radius:6px;font-size:12px;}
+.jtx .nested-wrap{overflow:visible;}
+.jtx .nested-table{font-size:12px;border:1px solid var(--border, #1f2937);border-radius:8px;}
+.jtx .sections{display:grid;gap:8px;}
+.jtx .section{border:1px solid var(--border, #1f2937);border-radius:8px;overflow:hidden;}
+.jtx .section .section-header{display:flex;align-items:center;gap:8px;padding:6px 8px;font-size:12px;color:var(--text, #e5e7eb);background:var(--jtx-header-bg, var(--panel, #0d1526));border-bottom:1px solid var(--border, #1f2937);}
+.jtx .section .section-body{padding:6px 8px;}
+.jtx .kv-inline{display:grid;gap:6px;}
+.jtx .kv-chip{display:block;background:var(--jtx-pill-bg, #132036);color:var(--text, #e5e7eb);border:1px solid var(--jtx-pill-border, #1c2b4b);padding:2px 6px;border-radius:8px;font-size:12px;}
+.jtx .kv-row{display:grid;grid-template-columns:140px 1fr;border:1px solid var(--border, #1f2937);border-radius:8px;overflow:hidden;}
+.jtx .kv-title{background:var(--jtx-header-bg, var(--panel, #0d1526));padding:6px 8px;font-weight:600;color:var(--text, #e5e7eb);border-right:1px solid var(--border, #1f2937);}
+.jtx .kv-content{padding:6px 8px;}
+.jtx .list-plain{display:grid;gap:4px;}
+.jtx .list-item{padding:2px 0;border-bottom:1px dashed rgba(255,255,255,0.06);}
+.jtx .list-item:last-child{border-bottom:none;}
+.jtx table.vertical{table-layout:fixed;font-size:12px;}
+.jtx table.vertical th,.jtx table.vertical td{padding:6px;word-break:break-all;white-space:normal;}
+.jtx table.vertical th:first-child{width:120px;}`;
+
+fs.mkdirSync(distDir, { recursive: true });
+fs.writeFileSync(path.join(distDir, 'json-table-x.min.css'), css, 'utf8');
+fs.mkdirSync(demoDistDir, { recursive: true });
+fs.copyFileSync(path.join(distDir, 'json-table-x.min.css'), path.join(demoDistDir, 'json-table-x.min.css'));
+console.log('[build-css] wrote dist/json-table-x.min.css and demo/dist/json-table-x.min.css');

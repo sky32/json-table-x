@@ -19,6 +19,9 @@
         sectionBody: 'section-body',
         kvInline: 'kv-inline',
         kvChip: 'kv-chip',
+        kvRow: 'kv-row',
+        kvTitle: 'kv-title',
+        kvContent: 'kv-content',
         listPlain: 'list-plain',
         listItem: 'list-item'
     };
@@ -162,10 +165,29 @@
             if (singleItemInline && v.length === 1) return buildValueNode(v[0], depth, ctx);
             const wrap = document.createElement('div'); wrap.className = 'nested-wrap';
             if (scroll?.enable) { wrap.style.maxHeight = `${scroll.maxHeight || 260}px`; wrap.style.overflow = 'auto'; }
+            if (v.length === 1 && !singleItemInline) {
+                const only = v[0];
+                if (isPlainObject(only)) {
+                    const flat = flattenObject(only);
+                    const columns = Object.keys(flat);
+                    const rows = [flat];
+                    const orientation = 'horizontal';
+                    wrap.appendChild(buildTableElement(columns, rows, { nested: true, depth, orientation, allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                    return wrap;
+                }
+            }
             if (isPrimitiveArray(v)) {
-                const list = document.createElement('div'); list.className = cn('listPlain', classNames);
-                v.forEach(item => { const row = document.createElement('div'); row.className = cn('listItem', classNames); if (allowHtml && typeof item === 'string') row.innerHTML = item; else row.textContent = typeof item === 'string' ? item : String(item); list.appendChild(row); });
-                wrap.appendChild(list); return wrap;
+                if (v.length === 1 && !singleItemInline) {
+                    const baseColumns = [msgs.contentLabel];
+                    const baseRows = [{ [msgs.contentLabel]: v[0] }];
+                    const orientation = 'vertical';
+                    wrap.appendChild(buildTableElement(baseColumns, baseRows, { nested: true, depth, orientation, allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                } else {
+                    const list = document.createElement('div'); list.className = cn('listPlain', classNames);
+                    v.forEach(item => { const row = document.createElement('div'); row.className = cn('listItem', classNames); if (allowHtml && typeof item === 'string') row.innerHTML = item; else row.textContent = typeof item === 'string' ? item : String(item); list.appendChild(row); });
+                    wrap.appendChild(list);
+                }
+                return wrap;
             }
             const kinds = new Set(v.map(x => isPlainObject(x) ? 'obj' : Array.isArray(x) ? 'arr' : typeof x));
             if (kinds.size === 1 && kinds.has('obj')) {
@@ -185,47 +207,82 @@
         if (isPlainObject(v)) {
             const grouped = groupColonKeys(v);
             if (isFlatObject(grouped)) {
-                const inline = document.createElement('div'); inline.className = cn('kvInline', classNames);
-                for (const [k, val] of Object.entries(grouped)) {
-                    const chip = document.createElement('span'); chip.className = cn('kvChip', classNames);
-                    const label = document.createElement('b'); if (allowHtml) label.innerHTML = k + ': '; else label.textContent = k + ': ';
-                    const value = document.createElement('span');
-                    if (val === true) value.textContent = (msgs && msgs.trueLabel) || 'true';
-                    else if (val === false) value.textContent = (msgs && msgs.falseLabel) || 'false';
-                    else if (typeof val === 'number') value.textContent = String(val);
-                    else if (typeof val === 'string') { if (allowHtml) value.innerHTML = val; else value.textContent = val; }
-                    else if (val == null) value.textContent = '—';
-                    else value.textContent = JSON.stringify(val);
-                    chip.appendChild(label); chip.appendChild(value); inline.appendChild(chip);
+                const entries = Object.entries(grouped);
+                if (singleItemInline) {
+                    const wrap = document.createElement('div');
+                    for (const [k, val] of entries) {
+                        const row = document.createElement('div'); row.className = cn('kvRow', classNames);
+                        const title = document.createElement('div'); title.className = cn('kvTitle', classNames);
+                        if (allowHtml) title.innerHTML = k; else title.textContent = k;
+                        const content = document.createElement('div'); content.className = cn('kvContent', classNames);
+                        content.appendChild(buildValueNode(val, depth + 1, { allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                        row.appendChild(title); row.appendChild(content);
+                        wrap.appendChild(row);
+                    }
+                    return wrap;
+                } else {
+                    const container = document.createElement('div'); container.className = cn('sections', classNames);
+                    for (const [k, val] of entries) {
+                        const sec = document.createElement('div'); sec.className = cn('section', classNames);
+                        const header = document.createElement('div'); header.className = cn('sectionHeader', classNames);
+                        if (allowHtml) header.innerHTML = k; else header.textContent = k;
+                        const body = document.createElement('div'); body.className = cn('sectionBody', classNames);
+                        body.appendChild(buildValueNode(val, depth + 1, { allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                        sec.appendChild(header); sec.appendChild(body); container.appendChild(sec);
+                    }
+                    return container;
                 }
-                return inline;
             }
             const entries = Object.entries(grouped);
             const primitives = entries.filter(([_, val]) => !Array.isArray(val) && !isPlainObject(val));
             const complexes = entries.filter(([_, val]) => Array.isArray(val) || isPlainObject(val));
             const container = document.createElement('div'); container.className = cn('sections', classNames);
             if (primitives.length > 0) {
-                const inline = document.createElement('div'); inline.className = cn('kvInline', classNames);
-                for (const [k, val] of primitives) {
-                    const chip = document.createElement('span'); chip.className = cn('kvChip', classNames);
-                    const label = document.createElement('b'); if (allowHtml) label.innerHTML = k + ': '; else label.textContent = k + ': ';
-                    const value = document.createElement('span');
-                    if (val === true) value.textContent = (msgs && msgs.trueLabel) || 'true';
-                    else if (val === false) value.textContent = (msgs && msgs.falseLabel) || 'false';
-                    else if (typeof val === 'number') value.textContent = String(val);
-                    else if (typeof val === 'string') { if (allowHtml) value.innerHTML = val; else value.textContent = val; }
-                    else if (val == null) value.textContent = '—';
-                    else value.textContent = JSON.stringify(val);
-                    chip.appendChild(label); chip.appendChild(value); inline.appendChild(chip);
+                if (singleItemInline) {
+                    for (const [k, val] of primitives) {
+                        const row = document.createElement('div'); row.className = cn('kvRow', classNames);
+                        const title = document.createElement('div'); title.className = cn('kvTitle', classNames);
+                        if (allowHtml) title.innerHTML = k; else title.textContent = k;
+                        const content = document.createElement('div'); content.className = cn('kvContent', classNames);
+                        content.appendChild(buildValueNode(val, depth + 1, { allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                        row.appendChild(title); row.appendChild(content);
+                        container.appendChild(row);
+                    }
+                } else {
+                    for (const [k, val] of primitives) {
+                        const sec = document.createElement('div'); sec.className = cn('section', classNames);
+                        const header = document.createElement('div'); header.className = cn('sectionHeader', classNames);
+                        if (allowHtml) header.innerHTML = k; else header.textContent = k;
+                        const body = document.createElement('div'); body.className = cn('sectionBody', classNames);
+                        body.appendChild(buildValueNode(val, depth + 1, { allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                        sec.appendChild(header); sec.appendChild(body); container.appendChild(sec);
+                    }
                 }
-                container.appendChild(inline);
             }
             for (const [k, val] of complexes) {
                 const sec = document.createElement('div'); sec.className = cn('section', classNames);
                 const header = document.createElement('div'); header.className = cn('sectionHeader', classNames);
                 if (allowHtml) header.innerHTML = k; else header.textContent = k;
                 const body = document.createElement('div'); body.className = cn('sectionBody', classNames);
-                body.appendChild(buildValueNode(val, depth + 1, { allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                // If value is a single-key flat object and inline is on, render inline "k2: v2"
+                if (singleItemInline && isPlainObject(val)) {
+                    const grouped2 = groupColonKeys(val);
+                    const entries2 = Object.entries(grouped2);
+                    if (entries2.length === 1 && isFlatObject(grouped2)) {
+                        const [k2, v2] = entries2[0];
+                        const row = document.createElement('div'); row.className = cn('kvRow', classNames);
+                        const title = document.createElement('div'); title.className = cn('kvTitle', classNames);
+                        if (allowHtml) title.innerHTML = k2; else title.textContent = k2;
+                        const content = document.createElement('div'); content.className = cn('kvContent', classNames);
+                        content.appendChild(buildValueNode(v2, depth + 1, { allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                        row.appendChild(title); row.appendChild(content);
+                        body.appendChild(row);
+                    } else {
+                        body.appendChild(buildValueNode(val, depth + 1, { allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                    }
+                } else {
+                    body.appendChild(buildValueNode(val, depth + 1, { allowHtml, scroll, layoutMode, msgs, singleItemInline, classNames }));
+                }
                 sec.appendChild(header); sec.appendChild(body); container.appendChild(sec);
             }
             return container;
@@ -288,11 +345,15 @@
     const themes = {
         dark: {
             '--bg': '#0f172a', '--panel': '#111827', '--muted': '#9ca3af', '--text': '#e5e7eb',
-            '--accent': '#22c55e', '--accent-2': '#3b82f6', '--border': '#1f2937', '--chip': '#0b1220'
+            '--accent': '#22c55e', '--accent-2': '#3b82f6', '--border': '#1f2937', '--chip': '#0b1220',
+            '--jtx-header-bg': '#0d1526', '--jtx-row-odd': '#0b1220', '--jtx-row-even': '#0c172a',
+            '--jtx-pill-bg': '#132036', '--jtx-pill-border': '#1c2b4b', '--jtx-pill-text': '#9cc3ff'
         },
         light: {
             '--bg': '#ffffff', '--panel': '#ffffff', '--muted': '#6b7280', '--text': '#0f172a',
-            '--accent': '#16a34a', '--accent-2': '#2563eb', '--border': '#e5e7eb', '--chip': '#f8fafc'
+            '--accent': '#16a34a', '--accent-2': '#2563eb', '--border': '#e5e7eb', '--chip': '#f8fafc',
+            '--jtx-header-bg': '#f1f5f9', '--jtx-row-odd': '#ffffff', '--jtx-row-even': '#f8fafc',
+            '--jtx-pill-bg': '#eef2ff', '--jtx-pill-border': '#e0e7ff', '--jtx-pill-text': '#334155'
         },
         compact: {
             '--chip': '#0b1220', '--border': '#1f2937'

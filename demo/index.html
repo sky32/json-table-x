@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JsonTableX Demo</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css" id="styleLink" />
+  <link rel="stylesheet" href="./dist/json-table-x.min.css" id="renderStyle" />
   <style>
     body {
       padding: 16px;
@@ -27,37 +28,50 @@
 </head>
 
 <body>
-  <h1>JsonTableX Demo</h1>
-  <div class="bar">
-    <select id="view">
-      <option value="single">单表</option>
-      <option value="multi">多表</option>
-    </select>
-    <select id="theme">
-      <option value="">默认</option>
-      <option value="dark" selected>深色</option>
-      <option value="light">浅色</option>
-      <option value="compact">紧凑</option>
-    </select>
-    <select id="layout">
-      <option value="auto">自动</option>
-      <option value="horizontal">横向</option>
-      <option value="vertical">纵向</option>
-    </select>
-    <select id="lang">
-      <option value="zh" selected>中文</option>
-      <option value="en">English</option>
-    </select>
-    <label><input type="checkbox" id="allowHtml" />允许HTML</label>
-    <label><input type="checkbox" id="single" checked />单元素内联</label>
-    <label><input type="checkbox" id="scroll" />子表滚动</label>
-    <label>高度(px) <input type="number" id="height" value="260" style="width:80px"></label>
-    <button id="render">渲染</button>
-    <button id="example">示例</button>
+  <div class="layout">
+    <section class="left-pane">
+      <h1>JsonTableX Demo</h1>
+      <div class="bar">
+        <select id="view">
+          <option value="single">单表</option>
+          <option value="multi">多表</option>
+        </select>
+        <select id="theme">
+          <option value="">默认</option>
+          <option value="dark" selected>深色</option>
+          <option value="light">浅色</option>
+          <option value="compact">紧凑</option>
+        </select>
+        <select id="layout">
+          <option value="auto">自动</option>
+          <option value="horizontal">横向</option>
+          <option value="vertical">纵向</option>
+        </select>
+        <select id="lang">
+          <option value="zh" selected>中文</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div class="bar">
+        <label><input type="checkbox" id="allowHtml" />允许HTML</label>
+        <label><input type="checkbox" id="single" checked />单元素内联</label>
+        <label><input type="checkbox" id="scroll" />子表滚动</label>
+        <label>高度(px)
+          <input type="number" id="height" value="260" min="60" step="10" style="width:80px">
+        </label>
+        <label><input type="checkbox" id="enableCss" checked />包含样式</label>
+      </div>
+      <div class="bar">
+        <button id="render">渲染</button>
+        <button id="example">示例</button>
+      </div>
+      <textarea id="input"></textarea>
+    </section>
+    <section class="right-pane">
+      <div id="out"></div>
+    </section>
   </div>
-  <textarea id="input"></textarea>
-  <div id="out" style="margin-top:12px"></div>
-  <script src="../dist/json-table-x.min.js"></script>
+  <script src="./dist/json-table-x.min.js"></script>
   <script src="./app.js"></script>
 </body>
 

@@ -1,95 +1,110 @@
 # JsonTableX
 
-一个可将任意 JSON 渲染为嵌套 HTML 表格的轻量插件，支持对象/数组混合结构、纵横布局、HTML 内容、i18n、子表滚动与空间优化。
+将任意 JSON（对象/数组/原始值）渲染为可读的嵌套 HTML 表格：自动选择横/纵布局，支持多表拆分、滚动、i18n、主题变量与类名覆写。
 
-## 安装与引入
+## 特性
 
-直接在页面引入：
+- 任意深度嵌套：对象/数组混合结构都可递归展示
+- 表格自适应：对象数组自动生成“记录表”，并按数据规模自动横/纵切换
+- 多表模式：从 JSON 中发现可渲染的表格路径，按需筛选渲染
+- i18n：内置中英文文案，可完全自定义
+- 样式可控：提供 CSS 变量主题 + classNames 覆写，适配你的设计体系
+- 小优化：数组单元素可内联、子表可滚动、`a:b` 形式 key 会自动分组
+
+## 使用方式
+
+### 直接在页面引入（推荐）
+
+构建产物在 `dist/` 下：
 
 ```html
+<link rel="stylesheet" href="dist/json-table-x.min.css" />
 <script src="dist/json-table-x.min.js"></script>
 ```
 
 全局变量：
-- `window.JsonTableX`（别名 `JsonTablePlugin`）
 
-## 快速开始
+- `window.JsonTableX`（别名：`window.JsonTablePlugin`）
+
+### 快速开始
 
 ```html
 <div id="mount"></div>
 <script>
-  const data = {/* your JSON */};
+  const data = { hello: "world", users: [{ id: 1, name: "Alice" }] };
+
   JsonTableX.render(document.getElementById('mount'), data, {
-    view: 'single',                  // 'single' | 'multi'
-    layoutMode: 'auto',              // 'auto' | 'horizontal' | 'vertical'
-    allowHtml: false,                // 是否将字符串/键名按HTML渲染
-    lang: 'zh',                      // 'zh' | 'en'
-    singleItemInline: true,          // 数组仅1个元素时，直接内联到父单元格
-    scroll: { enable: false, maxHeight: 260 }, // 子表滚动与高度
-    className: 'my-root',            // 根容器附加类名
-    classNames: {                    // 覆盖内部类名（可选）
-      kvChip: 'my-chip'
-    },
-    cssVars: {                       // 覆盖样式变量（可选）
-      '--panel': '#0f0f0f'
-    },
-    // selectedPaths: new Set(['$.data.items']) // 多表模式下生效
+    className: 'jtx',
+    view: 'single',
+    layoutMode: 'auto',
+    lang: 'zh',
+    allowHtml: false,
+    singleItemInline: true,
+    scroll: { enable: false, maxHeight: 260 },
+    cssVars: JsonTableX.themes.dark
   });
 </script>
 ```
 
 ## API
 
-### render(container, data, options)
-- `container`: HTMLElement，渲染容器
-- `data`: 任意 JSON 对象/数组/原始值
-- `options`:
-  - `view`: 'single' | 'multi'
-  - `layoutMode`: 'auto' | 'horizontal' | 'vertical'
-  - `allowHtml`: boolean
-  - `lang`: 'zh' | 'en'
-  - `messages`: 自定义文案 { fieldLabel, contentLabel, noTables, trueLabel, falseLabel }
-  - `singleItemInline`: boolean
-  - `scroll`: { enable: boolean, maxHeight: number }
-  - `selectedPaths`: Set<string>（view='multi' 时可选）
-  - `className`: string（根容器附加类）
-  - `classNames`: Record<string,string>（覆盖内部类名，可选键：
-    table、thead、tbody、tr、th、td、card、tableWrap、nestedTable、sections、section、sectionHeader、sectionBody、kvInline、kvChip、listPlain、listItem）
-  - `cssVars`: Record<string,string>（覆盖主题变量，如 {'--panel':'#0f0f0f'}）
+### JsonTableX.render(container, data, options?)
 
-### discover(data)
-返回可渲染表格的摘要信息数组（path/kind/columns/rows），便于外部做路径选择。
+- `container`: HTMLElement（渲染容器）
+- `data`: 任意 JSON
+- `options`：
+  - `view`: `'single' | 'multi'`，默认 `'single'`
+  - `layoutMode`: `'auto' | 'horizontal' | 'vertical'`，默认 `'auto'`
+  - `allowHtml`: boolean，默认 `false`（注意：开启后会把 key/字符串当作 HTML 注入 DOM）
+  - `lang`: `'zh' | 'en'`，默认 `'zh'`
+  - `messages`: 覆盖文案 `{ fieldLabel, contentLabel, noTables, trueLabel, falseLabel }`
+  - `singleItemInline`: boolean，默认 `true`（数组只有 1 个元素时直接内联）
+  - `scroll`: `{ enable: boolean, maxHeight: number }`（子表滚动）
+  - `selectedPaths`: `Set<string>`（仅 `view='multi'` 生效，用于筛选要渲染的路径）
+  - `className`: string（根容器附加类名；内置样式使用 `jtx`）
+  - `classNames`: `Record<string,string>`（覆写内部类名，key 列表见下方）
+  - `cssVars`: `Record<string,string>`（CSS 变量覆写；可直接用 `JsonTableX.themes.*`）
+
+内部 classNames 可覆写 key：
+
+`table thead tbody tr th td card tableWrap nestedTable sections section sectionHeader sectionBody kvInline kvChip kvRow kvTitle kvContent listPlain listItem`
+
+### JsonTableX.discover(data)
+
+返回“可渲染表格”的摘要数组，用于多表模式筛选：
+
+- `[{ kind, path, columns, rows }, ...]`
+- `kind`: `'records' | 'list' | 'kv'`
+- `path`: 类 JSONPath 形式（例如 `$.users[0].profile`）
+
+多表筛选示例：
+
+```js
+const tables = JsonTableX.discover(data);
+const selectedPaths = new Set(tables.filter(t => t.kind === 'records').map(t => t.path));
+JsonTableX.render(mountEl, data, { className: 'jtx', view: 'multi', selectedPaths });
+```
 
 ## i18n
-内置：
-- zh: { fieldLabel: '字段', contentLabel: '内容', noTables: '没有可渲染的表格', trueLabel: '是', falseLabel: '否' }
-- en: { fieldLabel: 'Field', contentLabel: 'Content', noTables: 'No tables to render', trueLabel: 'true', falseLabel: 'false' }
+
+内置文案：
+
+- zh: `{ fieldLabel: '字段', contentLabel: '内容', noTables: '没有可渲染的表格', trueLabel: '是', falseLabel: '否' }`
+- en: `{ fieldLabel: 'Field', contentLabel: 'Content', noTables: 'No tables to render', trueLabel: 'true', falseLabel: 'false' }`
 
 可通过 `lang` 或 `messages` 覆盖。
 
-## 展示策略
-- 平面对象（仅键→基础值）：合并到一个单元格，以逐行 chips 展示
-- 数组：
-  - 仅1个元素且 `singleItemInline=true`：直接内联该元素
-  - 纯基础值数组：无表头的纵向内容列表
-  - 对象数组：子表（列为键并集）
-- 嵌套对象：基础字段先以 chips 集中展示，复杂字段分节展开；递归嵌套无限制
- 
-## 主题与样式
-- 内置主题：`JsonTableX.themes.dark | light | compact`，可直接作为 `cssVars` 传入
-- 自定义类名：通过 `classNames` 覆盖内部节点类以适配你的设计体系
+## 构建与本地预览
 
-## Demo
-- 打开 `demo/index.html` 体验最简集成
-
-## 构建
 ```bash
+npm install
 npm run build
+npm run dev
 ```
 
-输出：dist/json-table-x.min.js
+- `npm run dev`：构建并打开 Demo（默认 http://127.0.0.1:8000/）
+- `npm run build`：输出 `dist/json-table-x.min.js` 与 `dist/json-table-x.min.css`
+- `npm run clean`：清理 `dist`
 
-## 脚本
-- `npm run dev`：本地预览 demo（端口 8000）
-- `npm run build`：压缩生成 dist/json-table-x.min.js
-- `npm run clean`：清理 dist
+Demo 位于 `demo/`，直接打开 `demo/index.html` 也可运行（但建议先 `npm run build`）。
+

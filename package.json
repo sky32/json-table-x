@@ -1,16 +1,17 @@
 {
   "name": "json-table-x",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Render arbitrary JSON into nested HTML tables with layout, i18n and styling options.",
   "main": "json-table-x.js",
   "scripts": {
     "build:prep": "mkdir -p dist",
-    "build": "npm run build:prep && terser json-table-x.js -c --mangle -o dist/json-table-x.min.js",
-    "dev": "http-server demo -p 8000 -c-1",
+    "build": "npm run build:prep && terser json-table-x.js -c --mangle -o dist/json-table-x.min.js && node scripts/copy-dist.js && node scripts/build-css.js",
+    "dev": "concurrently -n server,open \"sh -c 'npm run build && http-server demo -p 8000 -c-1'\" \"sleep 1 && echo 'Open: http://127.0.0.1:8000/' && open http://127.0.0.1:8000/\"",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "http-server": "^14.1.1",
     "terser": "^5.27.0"
   }
